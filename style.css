@@ -1,0 +1,401 @@
+/* ===== 달빛카페 스타일 ===== */
+
+/* 색상과 글꼴 변수 */
+:root {
+    --night-1: #081a45;   /* 하늘 위쪽 */
+    --night-2: #14407f;   /* 하늘 가운데 */
+    --night-3: #2a63a8;   /* 하늘 아래쪽 */
+    --gold: #e8c77a;      /* 달빛 포인트 */
+    --paper: #f6efe0;     /* 한지 크림 */
+    --paper-edge: #e6d9bd;
+    --brown: #3e2b20;     /* 딥 브라운 */
+    --brown-soft: #7a6552;
+    --ink: #f4efe2;       /* 밤하늘 위 글자 */
+
+    --font-serif: "Noto Serif KR", "Batang", "Nanum Myeongjo", serif;
+    --font-sans: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+
+    --app-width: 480px;
+    --bar-height: 64px;
+}
+
+/* 기본 설정 */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    color: var(--ink);
+    line-height: 1.6;
+    background: linear-gradient(180deg, var(--night-1) 0%, var(--night-2) 55%, var(--night-3) 100%) fixed;
+}
+
+button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+h1, h2, dl, dd, p {
+    margin: 0;
+}
+
+/* 화면에는 보이지 않지만 스크린 리더는 읽는 글 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* 앱 폭: 모바일은 꽉 채우고, 넓은 화면은 가운데 열 */
+.app {
+    width: 100%;
+    max-width: var(--app-width);
+    margin: 0 auto;
+}
+
+/* ===== 입장 화면 ===== */
+.hero {
+    position: relative;
+    height: 100vh;
+    height: 100svh;
+    min-height: 520px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.hero__scene {
+    position: absolute;
+    inset: 0;
+}
+
+.scene {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* 제목: 글자를 넓게 벌려 네 모서리에 둔다 */
+.ch {
+    position: absolute;
+    z-index: 1;
+    transform: translateX(-50%);
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: clamp(2rem, 9vw, 2.4rem);
+    line-height: 1;
+    color: var(--ink);
+}
+
+.ch--top { top: 5%; }
+.ch--bottom { bottom: 3.5%; }
+.ch--left { left: 14%; }
+.ch--right { left: 86%; }
+
+/* 부제와 메뉴 보기 버튼 */
+.hero__cta-group {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 9%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.hero__sub {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
+    text-transform: uppercase;
+    color: #cfd9ee;
+}
+
+.hero__cta {
+    padding: 6px 28px;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    color: var(--gold);
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    text-decoration: none;
+    background: rgba(10, 31, 77, 0.6);
+}
+
+.hero__cta:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+
+/* ===== 입장 화면 애니메이션 ===== */
+
+/* 처음 나타날 때 한 번 (자바스크립트가 켜진 경우에만 숨겼다가 보여준다) */
+.js .reveal {
+    opacity: 0;
+    animation: fade-in 1.1s ease-out forwards;
+    animation-delay: var(--d, 0s);
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 별 반짝임 */
+.star {
+    animation: twinkle 4s ease-in-out infinite;
+}
+.s-a { animation-duration: 3.2s; }
+.s-b { animation-duration: 4.6s; animation-delay: -1.5s; }
+.s-c { animation-duration: 6s; animation-delay: -3s; }
+.s-d { animation-duration: 5s; animation-delay: -2.2s; }
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+}
+
+/* 달무리 */
+.moon-halo {
+    transform-origin: 340px 205px;
+    animation: halo 8s ease-in-out infinite;
+}
+
+@keyframes halo {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+
+/* 구름: 달 앞을 아주 천천히 지나간다 */
+.cloud {
+    animation: drift 50s linear infinite;
+    animation-delay: -14s;
+}
+
+@keyframes drift {
+    from { transform: translateX(-140px); }
+    to { transform: translateX(420px); }
+}
+
+/* 고양이 꼬리와 귀 */
+.cat-tail {
+    transform-origin: 350px 292px;
+    animation: tail 6s ease-in-out infinite;
+}
+
+@keyframes tail {
+    0%, 100% { transform: rotate(-6deg); }
+    50% { transform: rotate(10deg); }
+}
+
+.cat-ear {
+    transform-origin: 333px 260px;
+    animation: ear 9s ease-in-out infinite;
+}
+
+@keyframes ear {
+    0%, 90%, 100% { transform: rotate(0); }
+    94% { transform: rotate(-14deg); }
+    97% { transform: rotate(0); }
+}
+
+/* 처마 등불과 창의 은은한 불빛 */
+.glow {
+    animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* 물에 비친 반영의 일렁임 */
+.reflection {
+    transform-origin: 340px 420px;
+    animation: wobble 9s ease-in-out infinite;
+}
+
+@keyframes wobble {
+    0%, 100% { transform: translateX(0) scaleX(1); }
+    50% { transform: translateX(2.5px) scaleX(1.012); }
+}
+
+/* 물결 고리 */
+.ripple {
+    fill: none;
+    stroke: #9bbbe6;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ripple 9s ease-out infinite;
+}
+
+@keyframes ripple {
+    0% { transform: scale(0.1); opacity: 0.6; }
+    70% { opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+/* 연잎 */
+.leaf {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(2px) rotate(2deg); }
+}
+
+/* 동작 줄이기를 켠 사용자에게는 움직임 없이 장면만 보여준다 */
+@media (prefers-reduced-motion: reduce) {
+    .js .reveal {
+        opacity: 1;
+        animation: none;
+    }
+
+    .scene *,
+    .scene {
+        animation: none !important;
+    }
+}
+
+/* ===== 메뉴판 ===== */
+.menu {
+    padding: 32px 16px calc(var(--bar-height) + 32px);
+}
+
+.menu__head {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.menu__title {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: 1.6rem;
+    letter-spacing: 0.3em;
+    padding-left: 0.3em;
+    margin-bottom: 16px;
+}
+
+/* 탭 */
+.tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid rgba(232, 199, 122, 0.4);
+    border-radius: 999px;
+}
+
+.tabs__btn {
+    padding: 6px 24px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-family: var(--font-serif);
+}
+
+.tabs__btn.is-active {
+    background: var(--gold);
+    color: var(--brown);
+}
+
+.tabs__btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+/* 메뉴 목록 자리 (3단계에서 채운다) */
+.menu__list {
+    min-height: 120px;
+}
+
+/* 안내 */
+.info {
+    margin-top: 40px;
+    padding: 20px 16px;
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--brown);
+}
+
+.info__title {
+    margin-bottom: 12px;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.info__list div {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 0.875rem;
+}
+
+.info__list dt {
+    flex: 0 0 4.5em;
+    color: var(--brown-soft);
+}
+
+/* ===== 하단 주문 바 ===== */
+.order-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+    pointer-events: none;
+}
+
+.order-bar[hidden] {
+    display: none;
+}
+
+.order-bar__btn {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: calc(var(--app-width) - 32px);
+    height: calc(var(--bar-height) - 16px);
+    padding: 0 20px;
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--brown);
+    font-family: var(--font-serif);
+    font-weight: 600;
+}
+
+.order-bar__btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}

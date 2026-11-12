@@ -1,20 +1,186 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>웹프로그래밍 실습 메인 페이지</title>
-    </head>
-    <body>
-        <h1>&lt;H1&gt; 헤드라인 제목 1호</h1>
-        <h2>&lt;H2&gt; 헤드라인 제목 2호</h2>
-        <h3>&lt;H3&gt; 헤드라인 제목 3호</h3>
-        <h4>&lt;H4&gt; 헤드라인 제목 4호</h4>
-        <h5>&lt;H5&gt; 헤드라인 제목 5호</h5>
-        <h6>&lt;H6&gt; 헤드라인 제목 6호</h6>
-        <p>단락은 &lt;p&gt;요소로 표현한다.</p>
-        <p>&lt;H6&gt;요소는 &nbsp; 단락이 끝나면 구분을 위하여 
-            줄간격을 띄우지만, <br>
-            단순 줄바꿈인 &lt;br&gt; 요소는 &nbsp; 줄간격을 띄우지 않는다.
-        </p>
-    </body>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="고궁에 달이 뜨는 밤, 달빛카페의 메뉴판">
+    <title>달빛카페 | 메뉴판</title>
+
+    <script>document.documentElement.classList.add('js');</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&family=Noto+Serif+KR:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app">
+
+        <!-- 입장 화면: 카페 분위기 (달, 별, 고궁 지붕 위의 고양이, 연못에 비친 반영, 연잎) -->
+        <section id="hero" class="hero" aria-labelledby="hero-title">
+            <div class="hero__scene" aria-hidden="true">
+                <svg class="scene" viewBox="160 20 360 640" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <defs>
+                        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="#081a45"/>
+                            <stop offset="0.55" stop-color="#14407f"/>
+                            <stop offset="1" stop-color="#2a63a8"/>
+                        </linearGradient>
+
+                        <!-- 고궁 지붕과 고양이: 한 번 정의해서 본 장면과 물 반영에 함께 쓴다.
+                             좁은 화면에서 처마가 잘리지 않도록 가운데(340, 420)를 기준으로 조금 줄인다. -->
+                        <g id="palace" transform="translate(340 420) scale(.88) translate(-340 -420)">
+                            <rect x="228" y="378" width="224" height="44" fill="#07122e"/>
+                            <rect x="205" y="420" width="270" height="6" fill="#050c24"/>
+                            <path d="M180 338 C215 352 260 352 285 318 L305 296 L375 296 L395 318 C420 352 465 352 500 338 C480 372 430 378 340 378 C250 378 200 372 180 338 Z" fill="#050c24"/>
+                            <g class="glow">
+                                <rect x="244" y="386" width="52" height="30" fill="#f2c46d" opacity=".18"/>
+                                <rect x="314" y="386" width="52" height="30" fill="#f2c46d" opacity=".18"/>
+                                <rect x="384" y="386" width="52" height="30" fill="#f2c46d" opacity=".18"/>
+                                <rect x="250" y="390" width="40" height="22" rx="2" fill="#f2c46d"/>
+                                <rect x="320" y="390" width="40" height="22" rx="2" fill="#f2c46d"/>
+                                <rect x="390" y="390" width="40" height="22" rx="2" fill="#f2c46d"/>
+                                <circle cx="193" cy="346" r="4" fill="#ffd98a"/>
+                                <circle cx="487" cy="346" r="4" fill="#ffd98a"/>
+                            </g>
+                            <ellipse cx="340" cy="282" rx="11" ry="14" fill="#050b20"/>
+                            <circle cx="340" cy="262" r="8" fill="#050b20"/>
+                            <polygon class="cat-ear" points="332,260 333,249 340,255" fill="#050b20"/>
+                            <polygon points="348,260 347,249 340,255" fill="#050b20"/>
+                            <path class="cat-tail" d="M350 292 C368 294 374 278 366 268" fill="none" stroke="#050b20" stroke-width="5" stroke-linecap="round"/>
+                            <circle cx="337" cy="262" r="1.2" fill="#f2c46d"/>
+                            <circle cx="343" cy="262" r="1.2" fill="#f2c46d"/>
+                        </g>
+                    </defs>
+
+                    <!-- 하늘 -->
+                    <g class="reveal" style="--d:0s">
+                        <rect x="160" y="20" width="360" height="640" fill="url(#sky)"/>
+                    </g>
+
+                    <!-- 별 -->
+                    <g class="reveal" style="--d:.7s" fill="#ffffff">
+                        <circle class="star s-a" cx="182" cy="60" r="1.2"/><circle class="star s-b" cx="205" cy="140" r="1"/>
+                        <circle class="star s-c" cx="240" cy="48" r="1.4"/><circle class="star s-a" cx="262" cy="110" r="1"/>
+                        <circle class="star s-b" cx="290" cy="70" r="1.2"/><circle class="star s-d" cx="312" cy="40" r="1"/>
+                        <circle class="star s-a" cx="365" cy="52" r="1.2"/><circle class="star s-c" cx="398" cy="88" r="1"/>
+                        <circle class="star s-b" cx="420" cy="45" r="1.4"/><circle class="star s-a" cx="445" cy="125" r="1"/>
+                        <circle class="star s-d" cx="472" cy="70" r="1.2"/><circle class="star s-c" cx="498" cy="52" r="1"/>
+                        <circle class="star s-b" cx="508" cy="150" r="1.4"/><circle class="star s-c" cx="190" cy="200" r="1.2"/>
+                        <circle class="star s-a" cx="215" cy="255" r="1"/><circle class="star s-d" cx="255" cy="200" r="1"/>
+                        <circle class="star s-b" cx="285" cy="250" r="1.2"/><circle class="star s-a" cx="420" cy="235" r="1"/>
+                        <circle class="star s-c" cx="462" cy="205" r="1.4"/><circle class="star s-b" cx="492" cy="255" r="1"/>
+                        <circle class="star s-a" cx="175" cy="300" r="1"/><circle class="star s-d" cx="240" cy="300" r="1"/>
+                        <circle class="star s-b" cx="400" cy="170" r="1"/><circle class="star s-d" cx="300" cy="160" r="1"/>
+                    </g>
+
+                    <!-- 달과 구름 -->
+                    <g class="reveal" style="--d:1.1s">
+                        <g class="moon-halo">
+                            <circle cx="340" cy="205" r="62" fill="#f7ecc3" opacity=".16"/>
+                            <circle cx="340" cy="205" r="92" fill="#f7ecc3" opacity=".07"/>
+                        </g>
+                        <circle cx="340" cy="205" r="32" fill="#f7ecc3"/>
+                        <circle cx="330" cy="198" r="6" fill="#efe0a8" opacity=".7"/>
+                        <circle cx="350" cy="214" r="8" fill="#efe0a8" opacity=".6"/>
+                        <g class="cloud" fill="#6f8bc4" opacity=".35">
+                            <ellipse cx="300" cy="215" rx="46" ry="9"/>
+                            <ellipse cx="325" cy="206" rx="26" ry="8"/>
+                            <ellipse cx="282" cy="208" rx="20" ry="7"/>
+                        </g>
+                    </g>
+
+                    <!-- 강둑과 연못 -->
+                    <g class="reveal" style="--d:1.4s">
+                        <ellipse cx="165" cy="415" rx="75" ry="45" fill="#050d26"/>
+                        <ellipse cx="515" cy="418" rx="70" ry="42" fill="#050d26"/>
+                        <rect x="160" y="420" width="360" height="240" fill="#0a2358"/>
+                        <rect x="160" y="418" width="360" height="2" fill="#3d78c0" opacity=".5"/>
+                    </g>
+
+                    <!-- 물에 비친 반영 -->
+                    <g class="reveal" style="--d:1.7s">
+                        <g transform="translate(0 840) scale(1 -1)" opacity=".38">
+                            <use class="reflection" href="#palace"/>
+                        </g>
+                    </g>
+
+                    <!-- 고궁과 고양이 -->
+                    <g class="reveal" style="--d:1.7s">
+                        <use href="#palace"/>
+                    </g>
+
+                    <!-- 물결과 연잎 -->
+                    <g class="reveal" style="--d:2.4s">
+                        <ellipse class="ripple" cx="300" cy="500" rx="30" ry="7"/>
+                        <ellipse class="ripple" style="animation-delay:-3s" cx="390" cy="470" rx="30" ry="7"/>
+                        <ellipse class="ripple" style="animation-delay:-6s" cx="255" cy="545" rx="30" ry="7"/>
+                        <g class="leaf">
+                            <ellipse cx="228" cy="520" rx="22" ry="8" fill="#2a6b5a" stroke="#4b9c84" stroke-width=".5"/>
+                            <ellipse cx="225" cy="519" rx="12" ry="4" fill="#3b8a72" opacity=".6"/>
+                        </g>
+                        <g class="leaf" style="animation-delay:-2.5s">
+                            <ellipse cx="452" cy="508" rx="18" ry="6.5" fill="#2a6b5a" stroke="#4b9c84" stroke-width=".5"/>
+                            <g transform="translate(452 505)">
+                                <ellipse cx="0" cy="-6" rx="4.5" ry="9" transform="rotate(-35)" fill="#eab4c2"/>
+                                <ellipse cx="0" cy="-6" rx="4.5" ry="9" transform="rotate(35)" fill="#eab4c2"/>
+                                <ellipse cx="0" cy="-7" rx="4.5" ry="9" fill="#f6cdd7"/>
+                            </g>
+                        </g>
+                        <g class="leaf" style="animation-delay:-4.5s">
+                            <ellipse cx="418" cy="545" rx="14" ry="5" fill="#2a6b5a" stroke="#4b9c84" stroke-width=".5"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- 제목: 글자를 넓게 벌려 네 모서리에 둔다 -->
+            <h1 id="hero-title" class="hero__title">
+                <span class="sr-only">달빛카페</span>
+                <span class="ch ch--top ch--left reveal" style="--d:3s" aria-hidden="true">달</span>
+                <span class="ch ch--top ch--right reveal" style="--d:3.3s" aria-hidden="true">빛</span>
+                <span class="ch ch--bottom ch--left reveal" style="--d:3.6s" aria-hidden="true">카</span>
+                <span class="ch ch--bottom ch--right reveal" style="--d:3.9s" aria-hidden="true">페</span>
+            </h1>
+
+            <div class="hero__cta-group reveal" style="--d:4.3s">
+                <p class="hero__sub">Moonlight Café</p>
+                <a class="hero__cta" href="#menu">메뉴 보기</a>
+            </div>
+        </section>
+
+        <!-- 메뉴판 (3단계에서 메뉴 카드를 넣는다) -->
+        <section id="menu" class="menu" aria-labelledby="menu-title">
+            <header class="menu__head">
+                <h2 id="menu-title" class="menu__title">메뉴판</h2>
+                <div class="tabs" role="tablist" aria-label="메뉴 분류">
+                    <button class="tabs__btn is-active" type="button" role="tab" aria-selected="true" data-tab="drink">음료</button>
+                    <button class="tabs__btn" type="button" role="tab" aria-selected="false" data-tab="dessert">디저트</button>
+                </div>
+            </header>
+
+            <div id="menu-list" class="menu__list" role="tabpanel"></div>
+
+            <footer class="info">
+                <h2 class="info__title">달빛카페 안내</h2>
+                <dl class="info__list">
+                    <div><dt>영업시간</dt><dd>매일 11:00 – 22:00 (라스트 오더 21:30)</dd></div>
+                    <div><dt>주소</dt><dd>충남 천안시 안서동 상명대길 31</dd></div>
+                    <div><dt>전화</dt><dd>041-550-5555</dd></div>
+                </dl>
+            </footer>
+        </section>
+
+    </main>
+
+    <!-- 하단 주문 바 (4단계에서 담은 개수와 합계를 채운다) -->
+    <div id="order-bar" class="order-bar" hidden>
+        <button id="order-open" class="order-bar__btn" type="button">
+            <span class="order-bar__count">주문서 <b id="order-count">0</b></span>
+            <span class="order-bar__total"><b id="order-total">0</b>원</span>
+        </button>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
 </html>
