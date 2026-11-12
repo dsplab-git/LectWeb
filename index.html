@@ -154,12 +154,12 @@
             <header class="menu__head">
                 <h2 id="menu-title" class="menu__title">메뉴판</h2>
                 <div class="tabs" role="tablist" aria-label="메뉴 분류">
-                    <button class="tabs__btn is-active" type="button" role="tab" aria-selected="true" data-tab="drink">음료</button>
-                    <button class="tabs__btn" type="button" role="tab" aria-selected="false" data-tab="dessert">디저트</button>
+                    <button id="tab-drink" class="tabs__btn is-active" type="button" role="tab" aria-selected="true" aria-controls="menu-list" data-tab="drink">음료</button>
+                    <button id="tab-dessert" class="tabs__btn" type="button" role="tab" aria-selected="false" aria-controls="menu-list" tabindex="-1" data-tab="dessert">디저트</button>
                 </div>
             </header>
 
-            <div id="menu-list" class="menu__list" role="tabpanel"></div>
+            <div id="menu-list" class="menu__list" role="tabpanel" aria-labelledby="tab-drink"></div>
 
             <footer class="info">
                 <h2 class="info__title">달빛카페 안내</h2>
