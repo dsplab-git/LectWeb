@@ -419,10 +419,66 @@ h1, h2, dl, dd, p {
     color: var(--brown-soft);
 }
 
-.item__badges {
+/* 카드 아래 줄: 온도 선택과 담기 버튼 */
+.item__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.temps {
     display: flex;
     gap: 6px;
-    margin-top: 10px;
+}
+
+.temp {
+    padding: 2px 12px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.temp--hot { color: #a8452a; }
+.temp--iced { color: #2c5f93; }
+
+.temp--hot[aria-pressed="true"] {
+    background: #a8452a;
+    color: var(--paper);
+}
+
+.temp--iced[aria-pressed="true"] {
+    background: #2c5f93;
+    color: var(--paper);
+}
+
+.item__add {
+    margin-left: auto;
+    padding: 5px 18px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--paper);
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+}
+
+.item__add.is-added {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: var(--brown);
+}
+
+/* 크림색 카드와 주문서 안의 버튼은 딥 브라운 테두리로 포커스를 보여준다 */
+.item button:focus-visible,
+.sheet button:focus-visible {
+    outline: 2px solid var(--brown);
+    outline-offset: 2px;
 }
 
 .badge {
@@ -507,4 +563,225 @@ h1, h2, dl, dd, p {
 .order-bar__btn:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 3px;
+}
+
+/* ===== 주문서와 주문 확인 (아래에서 올라오는 시트) ===== */
+body:has(dialog[open]) {
+    overflow: hidden;
+}
+
+.sheet {
+    width: 100%;
+    max-width: var(--app-width);
+    max-height: 90vh;
+    max-height: 90svh;
+    margin: auto auto 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--brown);
+}
+
+.sheet::backdrop {
+    background: rgba(5, 12, 36, 0.65);
+}
+
+.sheet__panel {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    max-height: 90svh;
+    border-radius: 20px 20px 0 0;
+    background: var(--paper);
+}
+
+.sheet__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 12px 8px 20px;
+}
+
+.sheet__title {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.sheet__close {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--brown);
+}
+
+.sheet__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4px 20px;
+}
+
+.sheet__empty {
+    padding: 28px 0;
+    text-align: center;
+    color: var(--brown-soft);
+}
+
+.sheet__foot {
+    padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--paper-edge);
+}
+
+.sheet__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.sheet__total b {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+}
+
+.sheet__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--brown);
+    border-radius: 999px;
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+}
+
+.btn--primary {
+    background: var(--brown);
+    color: var(--paper);
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--brown);
+}
+
+/* 주문서의 한 줄 */
+.line {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--paper-edge);
+}
+
+.line:last-child {
+    border-bottom: 0;
+}
+
+.line__top,
+.line__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.line__bottom {
+    margin-top: 8px;
+}
+
+.line__name {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.line__name .badge {
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.line__unit {
+    font-size: 0.8rem;
+    color: var(--brown-soft);
+}
+
+.line__price {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px;
+    border: 1px solid var(--paper-edge);
+    border-radius: 999px;
+}
+
+.stepper__btn {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 1.1rem;
+    line-height: 1;
+    color: var(--brown);
+}
+
+.stepper__qty {
+    min-width: 2ch;
+    text-align: center;
+    font-weight: 500;
+}
+
+.line__remove {
+    padding: 6px;
+    border: 0;
+    background: transparent;
+    font-size: 0.8rem;
+    color: var(--brown-soft);
+    text-decoration: underline;
+}
+
+/* 주문 확인 화면 */
+.ticket__note {
+    margin-bottom: 12px;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.ticket__line {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--paper-edge);
+}
+
+.ticket__name {
+    flex: 1;
+}
+
+.ticket__qty {
+    font-weight: 500;
+}
+
+.ticket__price {
+    min-width: 5.5em;
+    text-align: right;
+}
+
+.ticket__meta {
+    margin: 12px 0 8px;
+    font-size: 0.8rem;
+    color: var(--brown-soft);
 }

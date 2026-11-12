@@ -173,13 +173,56 @@
 
     </main>
 
-    <!-- 하단 주문 바 (4단계에서 담은 개수와 합계를 채운다) -->
+    <!-- 하단 주문 바: 담은 메뉴가 있을 때만 보인다 -->
     <div id="order-bar" class="order-bar" hidden>
         <button id="order-open" class="order-bar__btn" type="button">
             <span class="order-bar__count">주문서 <b id="order-count">0</b></span>
             <span class="order-bar__total"><b id="order-total">0</b>원</span>
         </button>
     </div>
+
+    <!-- 주문서: 담은 메뉴, 수량 조절, 합계 -->
+    <dialog id="order-sheet" class="sheet" aria-labelledby="sheet-title">
+        <div class="sheet__panel">
+            <header class="sheet__head">
+                <h2 id="sheet-title" class="sheet__title">주문서</h2>
+                <button id="sheet-close" class="sheet__close" type="button" aria-label="주문서 닫기">×</button>
+            </header>
+            <div id="sheet-body" class="sheet__body"></div>
+            <footer class="sheet__foot">
+                <div class="sheet__total"><span>합계</span><b id="sheet-total">0원</b></div>
+                <div class="sheet__actions">
+                    <button id="sheet-clear" class="btn btn--ghost" type="button">비우기</button>
+                    <button id="sheet-confirm" class="btn btn--primary" type="button">주문 확인</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
+    <!-- 주문 확인: 이 화면을 직원에게 보여주면 주문이 된다 (서버로 전송하지 않는다) -->
+    <dialog id="confirm-sheet" class="sheet" aria-labelledby="confirm-title">
+        <div class="sheet__panel">
+            <header class="sheet__head">
+                <h2 id="confirm-title" class="sheet__title">주문 확인</h2>
+                <button id="confirm-close" class="sheet__close" type="button" aria-label="주문 확인 닫기">×</button>
+            </header>
+            <div class="sheet__body">
+                <p class="ticket__note">직원에게 이 화면을 보여주세요.</p>
+                <div id="ticket-body"></div>
+                <p id="ticket-time" class="ticket__meta"></p>
+            </div>
+            <footer class="sheet__foot">
+                <div class="sheet__total"><span>합계</span><b id="ticket-total">0원</b></div>
+                <div class="sheet__actions">
+                    <button id="confirm-back" class="btn btn--ghost" type="button">수정하기</button>
+                    <button id="confirm-new" class="btn btn--primary" type="button">새 주문 시작</button>
+                </div>
+            </footer>
+        </div>
+    </dialog>
+
+    <!-- 담았을 때 스크린 리더에게 알려 주는 안내 -->
+    <p id="live" class="sr-only" aria-live="polite"></p>
 
     <script src="script.js" defer></script>
 </body>

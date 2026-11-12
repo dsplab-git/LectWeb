@@ -98,8 +98,21 @@ const ICON_LOTUS =
 // ===== 화면 상태 =====
 const state = {
     tab: 'drink',   // 'drink' 또는 'dessert'
-    cart: []        // 담은 메뉴 (4단계)
+    cart: []        // 담은 메뉴: { id, temp, qty } 목록 (이름과 가격은 MENU에서 찾는다)
 };
+
+const CART_KEY = 'moonlight-cafe-cart';   // 브라우저에 주문서를 저장하는 이름
+const MAX_QTY = 20;                       // 한 메뉴를 담을 수 있는 최대 수량
+
+// id로 메뉴를 바로 찾기 위한 표
+const MENU_BY_ID = {};
+Object.values(MENU).forEach(function (groups) {
+    groups.forEach(function (group) {
+        group.items.forEach(function (item) {
+            MENU_BY_ID[item.id] = item;
+        });
+    });
+});
 
 // ===== 보조 함수 =====
 function formatPrice(price) {
@@ -136,13 +149,50 @@ function renderItem(item) {
     top.append(name, createEl('span', 'item__price', formatPrice(item.price)));
     card.append(top, createEl('p', 'item__desc', item.desc));
 
-    if (item.temps.length > 0) {
-        const badges = createEl('div', 'item__badges');
-        item.temps.forEach(function (temp) {
-            badges.append(createEl('span', 'badge badge--' + temp.toLowerCase(), temp));
+    // 아래 줄: 온도 선택(고를 수 없으면 표시만)과 담기 버튼
+    const bottom = createEl('div', 'item__bottom');
+    let selectedTemp = item.temps.length > 0 ? item.temps[0] : '';
+
+    if (item.temps.length === 1) {
+        bottom.append(createEl('span', 'badge badge--' + selectedTemp.toLowerCase(), selectedTemp));
+    } else if (item.temps.length > 1) {
+        const group = createEl('div', 'temps');
+        group.setAttribute('role', 'group');
+        group.setAttribute('aria-label', item.name + ' 온도 선택');
+
+        const buttons = item.temps.map(function (temp, index) {
+            const btn = createEl('button', 'temp temp--' + temp.toLowerCase(), temp);
+            btn.type = 'button';
+            btn.setAttribute('aria-pressed', String(index === 0));
+            btn.addEventListener('click', function () {
+                selectedTemp = temp;
+                buttons.forEach(function (other) {
+                    other.setAttribute('aria-pressed', String(other === btn));
+                });
+            });
+            return btn;
         });
-        card.append(badges);
+        group.append(...buttons);
+        bottom.append(group);
     }
+
+    const add = createEl('button', 'item__add', '담기');
+    add.type = 'button';
+    add.setAttribute('aria-label', item.name + ' 담기');
+    let flashTimer = 0;
+    add.addEventListener('click', function () {
+        addToCart(item.id, selectedTemp);
+        add.classList.add('is-added');
+        add.textContent = '담았어요';
+        clearTimeout(flashTimer);
+        flashTimer = setTimeout(function () {
+            add.classList.remove('is-added');
+            add.textContent = '담기';
+        }, 900);
+    });
+    bottom.append(add);
+
+    card.append(bottom);
     return card;
 }
 
@@ -199,11 +249,295 @@ function setupTabs() {
     });
 }
 
+// ===== 주문: 상태와 저장 =====
+function lineKey(line) {
+    return line.id + '|' + line.temp;
+}
+
+function lineLabel(line) {
+    const item = MENU_BY_ID[line.id];
+    return line.temp ? item.name + ' (' + line.temp + ')' : item.name;
+}
+
+function cartCount() {
+    return state.cart.reduce(function (sum, line) {
+        return sum + line.qty;
+    }, 0);
+}
+
+function cartTotal() {
+    return state.cart.reduce(function (sum, line) {
+        return sum + MENU_BY_ID[line.id].price * line.qty;
+    }, 0);
+}
+
+// 저장된 주문서를 읽는다. 잘못된 값이나 없어진 메뉴는 걸러낸다.
+function loadCart() {
+    const cart = [];
+    try {
+        const saved = JSON.parse(localStorage.getItem(CART_KEY));
+        if (!Array.isArray(saved)) return cart;
+
+        saved.forEach(function (line) {
+            const item = line && MENU_BY_ID[line.id];
+            if (!item) return;
+            const tempOk = item.temps.length === 0 ? line.temp === '' : item.temps.includes(line.temp);
+            if (!tempOk || !Number.isInteger(line.qty) || line.qty < 1) return;
+
+            const same = cart.find(function (other) {
+                return lineKey(other) === lineKey(line);
+            });
+            if (same) {
+                same.qty = Math.min(MAX_QTY, same.qty + line.qty);
+            } else {
+                cart.push({ id: line.id, temp: line.temp, qty: Math.min(MAX_QTY, line.qty) });
+            }
+        });
+    } catch (error) {
+        // 저장소를 쓸 수 없거나 값이 깨졌으면 빈 주문서로 시작한다.
+        return [];
+    }
+    return cart;
+}
+
+function saveCart() {
+    try {
+        localStorage.setItem(CART_KEY, JSON.stringify(state.cart));
+    } catch (error) {
+        // 저장이 막힌 환경에서는 저장 없이 계속 동작한다.
+    }
+}
+
+// 스크린 리더에게 알려 주는 짧은 안내
+function announce(message) {
+    document.getElementById('live').textContent = message;
+}
+
+// ===== 주문: 담기, 수량, 삭제 =====
+function addToCart(id, temp) {
+    const key = id + '|' + temp;
+    const line = state.cart.find(function (other) {
+        return lineKey(other) === key;
+    });
+
+    if (!line) {
+        state.cart.push({ id: id, temp: temp, qty: 1 });
+    } else if (line.qty >= MAX_QTY) {
+        announce('한 메뉴는 최대 ' + MAX_QTY + '개까지 담을 수 있어요.');
+        return;
+    } else {
+        line.qty += 1;
+    }
+
+    onCartChange();
+    announce(lineLabel({ id: id, temp: temp }) + ' 담았어요. 주문서에 ' + cartCount() + '개');
+}
+
+function changeQty(key, delta) {
+    const line = state.cart.find(function (other) {
+        return lineKey(other) === key;
+    });
+    if (!line) return;
+
+    if (delta > 0 && line.qty >= MAX_QTY) {
+        announce('한 메뉴는 최대 ' + MAX_QTY + '개까지 담을 수 있어요.');
+        return;
+    }
+    line.qty += delta;
+    if (line.qty < 1) {
+        removeLine(key);
+        return;
+    }
+    onCartChange();
+}
+
+function removeLine(key) {
+    state.cart = state.cart.filter(function (line) {
+        return lineKey(line) !== key;
+    });
+    onCartChange();
+}
+
+function clearCart() {
+    state.cart = [];
+    onCartChange();
+}
+
+// 주문서가 바뀔 때마다: 저장하고, 하단 바와 열려 있는 주문서를 갱신한다
+function onCartChange() {
+    saveCart();
+    updateOrderBar();
+    if (document.getElementById('order-sheet').open) {
+        renderSheet();
+    }
+}
+
+// ===== 주문: 하단 바 =====
+function updateOrderBar() {
+    const count = cartCount();
+    document.getElementById('order-count').textContent = String(count);
+    document.getElementById('order-total').textContent = cartTotal().toLocaleString('ko-KR');
+    document.getElementById('order-bar').hidden = count === 0;
+}
+
+// ===== 주문: 주문서 =====
+function renderLine(line) {
+    const item = MENU_BY_ID[line.id];
+    const key = lineKey(line);
+    const label = lineLabel(line);
+    const row = createEl('div', 'line');
+
+    const name = createEl('h3', 'line__name', item.name);
+    if (line.temp) {
+        name.append(createEl('span', 'badge badge--' + line.temp.toLowerCase(), line.temp));
+    }
+    const info = createEl('div', 'line__info');
+    info.append(name, createEl('p', 'line__unit', formatPrice(item.price)));
+
+    const top = createEl('div', 'line__top');
+    top.append(info, createEl('span', 'line__price', formatPrice(item.price * line.qty)));
+
+    const minus = createEl('button', 'stepper__btn', '−');
+    minus.type = 'button';
+    minus.setAttribute('aria-label', label + ' 수량 줄이기');
+    minus.addEventListener('click', function () {
+        changeQty(key, -1);
+    });
+
+    const plus = createEl('button', 'stepper__btn', '+');
+    plus.type = 'button';
+    plus.setAttribute('aria-label', label + ' 수량 늘리기');
+    plus.addEventListener('click', function () {
+        changeQty(key, 1);
+    });
+
+    const stepper = createEl('div', 'stepper');
+    stepper.append(minus, createEl('span', 'stepper__qty', String(line.qty)), plus);
+
+    const remove = createEl('button', 'line__remove', '삭제');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', label + ' 삭제');
+    remove.addEventListener('click', function () {
+        removeLine(key);
+    });
+
+    const bottom = createEl('div', 'line__bottom');
+    bottom.append(stepper, remove);
+
+    row.append(top, bottom);
+    return row;
+}
+
+function renderSheet() {
+    const body = document.getElementById('sheet-body');
+    const empty = state.cart.length === 0;
+
+    body.replaceChildren();
+    if (empty) {
+        body.append(createEl('p', 'sheet__empty', '아직 담은 메뉴가 없어요. 메뉴판에서 담아 주세요.'));
+    } else {
+        state.cart.forEach(function (line) {
+            body.append(renderLine(line));
+        });
+    }
+
+    document.getElementById('sheet-total').textContent = formatPrice(cartTotal());
+    document.getElementById('sheet-clear').hidden = empty;
+    document.getElementById('sheet-confirm').hidden = empty;
+}
+
+// ===== 주문: 확인 화면 (직원에게 보여주는 화면) =====
+function renderConfirm() {
+    const body = document.getElementById('ticket-body');
+    body.replaceChildren();
+
+    state.cart.forEach(function (line) {
+        const row = createEl('div', 'ticket__line');
+        row.append(
+            createEl('span', 'ticket__name', lineLabel(line)),
+            createEl('span', 'ticket__qty', '× ' + line.qty),
+            createEl('span', 'ticket__price', formatPrice(MENU_BY_ID[line.id].price * line.qty))
+        );
+        body.append(row);
+    });
+
+    document.getElementById('ticket-total').textContent = formatPrice(cartTotal());
+    const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('ticket-time').textContent = '주문 시각 ' + time + ' · 총 ' + cartCount() + '개';
+}
+
+function setupOrder() {
+    const sheet = document.getElementById('order-sheet');
+    const confirmSheet = document.getElementById('confirm-sheet');
+    const clearBtn = document.getElementById('sheet-clear');
+    let clearTimer = 0;
+
+    // 비우기는 실수로 누르지 않도록 두 번 눌러야 한다
+    function disarmClear() {
+        clearTimeout(clearTimer);
+        clearBtn.dataset.armed = 'false';
+        clearBtn.textContent = '비우기';
+    }
+
+    document.getElementById('order-open').addEventListener('click', function () {
+        renderSheet();
+        sheet.showModal();
+    });
+
+    document.getElementById('sheet-close').addEventListener('click', function () {
+        sheet.close();
+    });
+
+    clearBtn.addEventListener('click', function () {
+        if (clearBtn.dataset.armed === 'true') {
+            disarmClear();
+            clearCart();
+            return;
+        }
+        clearBtn.dataset.armed = 'true';
+        clearBtn.textContent = '정말 비울까요?';
+        clearTimer = setTimeout(disarmClear, 3000);
+    });
+
+    sheet.addEventListener('close', disarmClear);
+
+    document.getElementById('sheet-confirm').addEventListener('click', function () {
+        renderConfirm();
+        sheet.close();
+        confirmSheet.showModal();
+    });
+
+    document.getElementById('confirm-close').addEventListener('click', function () {
+        confirmSheet.close();
+    });
+
+    document.getElementById('confirm-back').addEventListener('click', function () {
+        confirmSheet.close();
+        renderSheet();
+        sheet.showModal();
+    });
+
+    document.getElementById('confirm-new').addEventListener('click', function () {
+        clearCart();
+        confirmSheet.close();
+    });
+
+    // 어두운 배경을 누르면 닫는다
+    [sheet, confirmSheet].forEach(function (dialog) {
+        dialog.addEventListener('click', function (event) {
+            if (event.target === dialog) dialog.close();
+        });
+    });
+}
+
 // ===== 시작 =====
 // 'js' 클래스는 입장 화면 깜빡임을 막으려고 index.html 위쪽에서 먼저 붙인다.
 function init() {
+    state.cart = loadCart();
     setupTabs();
     setTab(state.tab);
+    setupOrder();
+    updateOrderBar();
 }
 
 document.addEventListener('DOMContentLoaded', init);
